@@ -1,0 +1,31 @@
+{
+  "name": "launchpilot-ai-frontend",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "vite",
+    "build": "npm run build:css && npm run build:js",
+    "build:css": "tailwindcss -i ./src/index.css -o ./assets/app.css --minify",
+    "build:js": ".\\node_modules\\@esbuild\\win32-x64\\esbuild.exe \"C:\\Users\\soura\\OneDrive\\Documents\\New project\\frontend\\src\\main.jsx\" --bundle --outfile=\"C:\\Users\\soura\\OneDrive\\Documents\\New project\\frontend\\assets\\app.js\" --format=esm --loader:.js=jsx --loader:.jsx=jsx",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.105.1",
+    "axios": "^1.15.2",
+    "jspdf": "^2.5.2",
+    "lucide-react": "^1.14.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "react-router-dom": "^7.14.2",
+    "recharts": "^3.2.1"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-react": "^4.3.1",
+    "autoprefixer": "^10.4.20",
+    "postcss": "^8.4.45",
+    "tailwindcss": "^3.4.10",
+    "vite": "^5.4.2"
+  }
+}
