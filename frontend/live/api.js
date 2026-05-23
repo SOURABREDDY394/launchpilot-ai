@@ -1,4 +1,5 @@
-import axios from "axios";
+import axios from "https://esm.sh/axios@1.7.9";
+function _nullishCoalesce(lhs, rhsFn) { if (lhs != null) { return lhs; } else { return rhsFn(); } }
 
 const API_BASE_URL = window.__API_BASE_URL__ || "http://127.0.0.1:8000";
 
@@ -133,7 +134,7 @@ function localFallback(endpoint, body = {}) {
     },
   };
 
-  return fallbacks[endpoint] ?? null;
+  return _nullishCoalesce(fallbacks[endpoint], () => ( null));
 }
 
 export async function apiRequest(endpoint, method = "POST", body) {

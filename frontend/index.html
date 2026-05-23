@@ -4,14 +4,15 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>LaunchPilot AI</title>
+    <link rel="stylesheet" href="/src/index.css" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
       href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700&display=swap"
       rel="stylesheet"
     />
+    <script src="/config.js"></script>
     <script>
-      window.__API_BASE_URL__ = "http://127.0.0.1:8000";
       window.tailwind = {
         config: {
           theme: {
@@ -28,6 +29,6 @@
   </head>
   <body class="bg-slate-950">
     <div id="root"></div>
-    <script type="module" src="/browser-app.js"></script>
+    <script type="module" src="/src/main.jsx"></script>
   </body>
 </html>

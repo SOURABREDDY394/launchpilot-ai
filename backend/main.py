@@ -1,7 +1,6 @@
-from fastapi import FastAPI, Depends
+from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from modules.auth import router as auth_router
 from modules.competitor_analyzer import router as competitor_analyzer_router
 from modules.cold_email import router as cold_email_router
 from modules.finance import router as finance_router
@@ -14,7 +13,6 @@ from modules.pitch_deck import router as pitch_deck_router
 from modules.prd_generator import router as prd_generator_router
 from rag.rag_pipeline import router as rag_pipeline_router
 from utils.settings import settings
-from utils.auth import auth_dependency
 
 
 def create_app() -> FastAPI:
@@ -26,7 +24,7 @@ def create_app() -> FastAPI:
 
     app.add_middleware(
         CORSMiddleware,
-        allow_origins=["http://localhost:5173", "http://127.0.0.1:5173"],
+        allow_origins=settings.cors_allowed_origins_list,
         allow_credentials=True,
         allow_methods=["*"],
         allow_headers=["*"],
@@ -36,11 +34,7 @@ def create_app() -> FastAPI:
     async def health_check() -> dict[str, str]:
         return {"status": "ok"}
 
-    # Public routes
-    app.include_router(auth_router)
-
-    # Protected routes
-    protected_routers = [
+    product_routers = [
         (idea_validator_router, "Idea Validator"),
         (competitor_analyzer_router, "Competitor Analyzer"),
         (prd_generator_router, "PRD Generator"),
@@ -54,15 +48,10 @@ def create_app() -> FastAPI:
         (rag_pipeline_router, "RAG Pipeline"),
     ]
 
-    for router, tag in protected_routers:
-        app.include_router(
-            router, 
-            tags=[tag], 
-            dependencies=[auth_dependency]
-        )
+    for router, tag in product_routers:
+        app.include_router(router, tags=[tag])
 
     return app
 
 
 app = create_app()
-

@@ -84,6 +84,8 @@ npm run dev
 
 The frontend runs at [http://127.0.0.1:5173](http://127.0.0.1:5173). Vite is configured to proxy `/validate-idea` and `/health` to the FastAPI backend in development.
 
+For the static browser build, local runtime values live in `frontend/config.js`.
+
 ## Environment Variables
 
 Add these values in `backend/.env`:
@@ -117,3 +119,39 @@ Request body:
 - The Idea Validator returns strict JSON with category scores, rationale, strengths, weaknesses, and pivot suggestions for low-scoring ideas.
 - `backend/rag` and `backend/agents` are scaffolded for future retrieval and autonomous workflow modules.
 - Supabase and Cloudinary dependencies are included so the project can expand into persistence, auth, exports, and media storage without a second setup pass.
+
+## Deployment
+
+### Frontend on Vercel
+
+- Import the `frontend` directory as the Vercel project root.
+- Vercel config lives in `frontend/vercel.json`.
+- The deploy build command is `npm run build:deploy`.
+- The static output directory is `dist`.
+
+Set these Vercel environment variables:
+
+- `VITE_API_BASE_URL`: your Render backend URL, for example `https://your-backend.onrender.com`
+- `VITE_SUPABASE_URL`
+- `VITE_SUPABASE_ANON_KEY`
+
+### Backend on Render
+
+- Render Blueprint config lives in `render.yaml`.
+- Build command: `pip install -r requirements.txt`
+- Start command: `cd backend && uvicorn main:app --host 0.0.0.0 --port $PORT`
+- Health check path: `/health`
+
+Set these Render environment variables:
+
+- `CORS_ALLOWED_ORIGINS`: comma-separated list including your Vercel frontend origin
+- `OPENROUTER_API_KEY`
+- `OPENROUTER_BASE_URL`
+- `OPENROUTER_MODEL`
+- `OPENAI_EMBEDDING_MODEL`
+- `SUPABASE_URL`
+- `SUPABASE_KEY`
+- `CLOUDINARY_CLOUD_NAME`
+- `CLOUDINARY_API_KEY`
+- `CLOUDINARY_API_SECRET`
+- `FIRECRAWL_API_KEY`

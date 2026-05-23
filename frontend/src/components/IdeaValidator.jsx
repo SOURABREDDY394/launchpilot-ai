@@ -1,34 +1,108 @@
+import { ArrowRight, Sparkles } from "lucide-react";
 import { useState } from "react";
 
 import { validateIdea } from "../api";
 
 const scoreConfig = [
-  { key: "market_size", label: "Market Size" },
-  { key: "competition_level", label: "Competition Level" },
+  { key: "market_size", label: "Market" },
+  { key: "competition_level", label: "Competition" },
   { key: "feasibility", label: "Feasibility" },
   { key: "timing", label: "Timing" },
-  { key: "uniqueness", label: "Uniqueness" },
+  { key: "uniqueness", label: "Differentiation" },
 ];
 
-const ProgressBar = ({ label, score, rationale }) => {
+const previewResult = {
+  market_size: {
+    score: 8,
+    rationale:
+      "Students repeatedly revisit lectures and benefit from a faster comprehension loop.",
+  },
+  competition_level: {
+    score: 6,
+    rationale:
+      "The market is active, but there is still room for a focused wedge with better workflow design.",
+  },
+  feasibility: {
+    score: 7,
+    rationale:
+      "AI summarization is accessible technically, though trust and accuracy matter for adoption.",
+  },
+  timing: {
+    score: 8,
+    rationale:
+      "AI-assisted study tools are well timed thanks to stronger user familiarity and demand.",
+  },
+  uniqueness: {
+    score: 7,
+    rationale:
+      "Differentiation improves if the product layers recall, citations, and student workflow depth.",
+  },
+  overall_score: 7.8,
+  verdict:
+    "Promising wedge if you focus on trust, student retention, and a tighter workflow than generic assistants.",
+  strengths: [
+    "High-frequency user behavior",
+    "Easy value proposition to communicate",
+    "Expandable into notes, quizzes, and revision loops",
+  ],
+  weaknesses: [
+    "Crowded AI productivity category",
+    "Retention risk without proprietary workflow hooks",
+    "Education users expect very high accuracy",
+  ],
+};
+
+function ScorePill({ label, value }) {
+  return (
+    <div className="rounded-2xl border border-white/10 bg-white/5 px-4 py-3 shadow-[inset_0_1px_0_rgba(255,255,255,0.04)]">
+      <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-slate-400">
+        {label}
+      </p>
+      <p className="mt-2 text-lg font-semibold text-white">{value}</p>
+    </div>
+  );
+}
+
+function MetricBar({ label, score, rationale }) {
   const width = `${Math.max(0, Math.min(score, 10)) * 10}%`;
 
   return (
-    <div className="space-y-2 rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
+    <div className="rounded-[24px] border border-white/10 bg-slate-950/55 p-4">
       <div className="flex items-center justify-between gap-4">
-        <span className="text-sm font-semibold text-slate-800">{label}</span>
-        <span className="text-sm font-bold text-slate-900">{score}/10</span>
+        <p className="text-sm font-medium text-white">{label}</p>
+        <p className="text-sm font-semibold text-cyan-200">{score}/10</p>
       </div>
-      <div className="h-2 overflow-hidden rounded-full bg-slate-100">
+      <div className="mt-3 h-2 rounded-full bg-white/10">
         <div
-          className="h-full rounded-full bg-emerald-500 transition-all duration-500"
+          className="h-2 rounded-full bg-gradient-to-r from-cyan-300 via-sky-400 to-blue-500 transition-all duration-500"
           style={{ width }}
         />
       </div>
-      <p className="text-sm text-slate-600">{rationale}</p>
+      <p className="mt-3 text-sm leading-6 text-slate-400">{rationale}</p>
     </div>
   );
-};
+}
+
+function LoadingPanel() {
+  return (
+    <div className="rounded-[30px] border border-white/10 bg-slate-950/60 p-6">
+      <div className="flex items-center gap-3 text-sm font-medium text-cyan-200">
+        <span className="flex h-2.5 w-2.5 animate-pulse rounded-full bg-cyan-300" />
+        AI is pressure-testing your idea
+      </div>
+
+      <div className="mt-5 space-y-3">
+        <div className="h-16 animate-pulse rounded-[24px] bg-white/5" />
+        <div className="h-32 animate-pulse rounded-[24px] bg-white/5" />
+        <div className="grid gap-3 md:grid-cols-3">
+          <div className="h-20 animate-pulse rounded-[20px] bg-white/5" />
+          <div className="h-20 animate-pulse rounded-[20px] bg-white/5" />
+          <div className="h-20 animate-pulse rounded-[20px] bg-white/5" />
+        </div>
+      </div>
+    </div>
+  );
+}
 
 export default function IdeaValidator() {
   const [idea, setIdea] = useState("");
@@ -52,104 +126,210 @@ export default function IdeaValidator() {
     }
   };
 
+  const resolvedResult = result ?? previewResult;
+  const overallPercent = Math.round((resolvedResult.overall_score ?? previewResult.overall_score) * 10);
+
   return (
-    <section className="mx-auto w-full max-w-5xl space-y-6 rounded-2xl border border-slate-200/80 bg-white/75 p-6 shadow-xl shadow-slate-200/40 backdrop-blur md:p-8">
-      <div className="space-y-2">
-        <h2 className="text-2xl font-bold text-slate-900">Idea Validator</h2>
-        <p className="text-sm text-slate-600">
-          Stress-test a startup concept across market, competition, feasibility,
-          timing, and uniqueness.
-        </p>
-      </div>
+    <section
+      id="idea-validator"
+      className="relative overflow-hidden rounded-[36px] border border-cyan-300/15 bg-[linear-gradient(180deg,rgba(12,20,37,0.96),rgba(4,8,20,0.98))] p-6 shadow-[0_40px_140px_rgba(4,12,28,0.62)] md:p-8 lg:p-10"
+    >
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(34,211,238,0.18),transparent_28%),radial-gradient(circle_at_85%_18%,rgba(59,130,246,0.16),transparent_24%)]" />
 
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <textarea
-          value={idea}
-          onChange={(event) => setIdea(event.target.value)}
-          placeholder="Describe your startup idea..."
-          className="min-h-36 w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 shadow-sm outline-none transition focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100"
-          required
-        />
-        <button
-          type="submit"
-          disabled={loading || !idea.trim()}
-          className="inline-flex items-center justify-center rounded-xl bg-slate-900 px-5 py-3 text-sm font-semibold text-white transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:bg-slate-400"
-        >
-          {loading ? "Validating..." : "Validate Idea"}
-        </button>
-      </form>
-
-      {error ? (
-        <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
-          {error}
-        </div>
-      ) : null}
-
-      {result ? (
+      <div className="relative grid gap-8 xl:grid-cols-[1.25fr_0.75fr]">
         <div className="space-y-6">
-          <div className="rounded-2xl bg-slate-900 p-6 text-white shadow-lg">
-            <div className="flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
-              <div>
-                <p className="text-sm uppercase tracking-wide text-slate-300">
-                  Overall Score
-                </p>
-                <h3 className="text-4xl font-bold">{result.overall_score}/10</h3>
+          <div className="space-y-4">
+            <div className="inline-flex items-center gap-2 rounded-full border border-cyan-300/15 bg-cyan-300/10 px-3 py-1.5 text-xs font-semibold uppercase tracking-[0.24em] text-cyan-200">
+              Main Focus
+            </div>
+            <h2 className="max-w-3xl text-3xl font-semibold tracking-[-0.03em] text-white sm:text-4xl lg:text-5xl">
+              Validate your startup idea before the build starts
+            </h2>
+            <p className="max-w-2xl text-base leading-7 text-slate-300">
+              This is the core LaunchPilot workflow. Describe your idea once and get a structured
+              read on market pull, competitive pressure, feasibility, and whether the concept earns
+              more time.
+            </p>
+          </div>
+
+          <form onSubmit={handleSubmit} className="space-y-5">
+            <div className="rounded-[30px] border border-white/10 bg-white/[0.06] p-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.04)]">
+              <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+                <div>
+                  <p className="text-sm font-semibold text-white">Describe your startup idea</p>
+                  <p className="mt-1 text-sm leading-6 text-slate-400">
+                    Be specific about who it is for, the problem, and how the product works.
+                  </p>
+                </div>
+
+                <div className="inline-flex items-center rounded-full border border-emerald-300/15 bg-emerald-300/10 px-3 py-1.5 text-xs font-semibold text-emerald-100">
+                  Full access enabled
+                </div>
               </div>
-              <p className="max-w-2xl text-sm text-slate-200">{result.verdict}</p>
-            </div>
-          </div>
 
-          <div className="grid gap-4 md:grid-cols-2">
-            {scoreConfig.map(({ key, label }) => (
-              <ProgressBar
-                key={key}
-                label={label}
-                score={result[key]?.score ?? 0}
-                rationale={result[key]?.rationale ?? ""}
+              <textarea
+                value={idea}
+                onChange={(event) => setIdea(event.target.value)}
+                placeholder="AI tool for summarizing lectures for students"
+                className="mt-4 min-h-[240px] w-full resize-none rounded-[26px] border border-white/10 bg-slate-950/80 px-5 py-4 text-base text-white outline-none transition duration-200 placeholder:text-slate-500 focus:border-cyan-300/30 focus:ring-2 focus:ring-cyan-300/10"
+                required
               />
-            ))}
-          </div>
 
-          <div className="grid gap-4 lg:grid-cols-2">
-            <div className="rounded-xl border border-emerald-200 bg-emerald-50 p-5">
-              <h4 className="text-lg font-semibold text-emerald-900">Strengths</h4>
-              <ul className="mt-3 space-y-2 text-sm text-emerald-800">
-                {result.strengths.map((item) => (
-                  <li key={item} className="rounded-lg bg-white/70 px-3 py-2">
-                    {item}
-                  </li>
-                ))}
-              </ul>
+              <div className="mt-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                <p className="text-sm text-slate-400">
+                  Example prompt: AI tool for summarizing lectures for students
+                </p>
+                <p className="text-sm text-slate-400">
+                  Unlimited validations enabled locally
+                </p>
+              </div>
             </div>
 
-            <div className="rounded-xl border border-red-200 bg-red-50 p-5">
-              <h4 className="text-lg font-semibold text-red-900">Weaknesses</h4>
-              <ul className="mt-3 space-y-2 text-sm text-red-800">
-                {result.weaknesses.map((item) => (
-                  <li key={item} className="rounded-lg bg-white/70 px-3 py-2">
-                    {item}
-                  </li>
-                ))}
-              </ul>
-            </div>
-          </div>
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+              <button
+                type="submit"
+                disabled={loading || !idea.trim()}
+                className="inline-flex items-center justify-center gap-2 rounded-full bg-white px-6 py-3.5 text-sm font-semibold text-slate-950 transition duration-200 hover:-translate-y-0.5 hover:bg-cyan-50 disabled:cursor-not-allowed disabled:bg-slate-500"
+              >
+                {loading ? (
+                  <>
+                    <span className="h-4 w-4 animate-spin rounded-full border-2 border-slate-950/30 border-t-slate-950" />
+                    Analyzing your idea...
+                  </>
+                ) : (
+                  <>
+                    Analyze My Idea
+                    <ArrowRight className="h-4 w-4" />
+                  </>
+                )}
+              </button>
 
-          {result.overall_score < 6 && result.pivot_suggestions?.length > 0 ? (
-            <div className="rounded-xl border border-amber-200 bg-amber-50 p-5">
-              <h4 className="text-lg font-semibold text-amber-900">
-                Pivot Suggestions
-              </h4>
-              <ul className="mt-3 space-y-2 text-sm text-amber-900">
-                {result.pivot_suggestions.map((item) => (
-                  <li key={item} className="rounded-lg bg-white/80 px-3 py-2">
-                    {item}
-                  </li>
-                ))}
-              </ul>
+            </div>
+          </form>
+
+          {error ? (
+            <div className="rounded-[24px] border border-rose-400/20 bg-rose-400/10 px-5 py-4 text-sm text-rose-100">
+              {error}
+            </div>
+          ) : null}
+
+          {loading ? <LoadingPanel /> : null}
+
+          {result && !loading ? (
+            <div className="relative overflow-hidden rounded-[30px] border border-white/10 bg-slate-950/60 p-6">
+              <div>
+                <div className="grid gap-4 lg:grid-cols-[0.88fr_1.12fr]">
+                  <div className="space-y-4 rounded-[28px] border border-cyan-300/15 bg-cyan-300/10 p-5">
+                    <div className="flex items-start justify-between gap-4">
+                      <div>
+                        <p className="text-xs font-semibold uppercase tracking-[0.24em] text-cyan-100/80">
+                          Validation Score
+                        </p>
+                        <div className="mt-3 flex items-end gap-2">
+                          <p className="text-5xl font-semibold text-white">{overallPercent}</p>
+                          <p className="pb-1 text-sm text-cyan-100/80">/ 100</p>
+                        </div>
+                      </div>
+                      <Sparkles className="mt-1 h-5 w-5 text-cyan-100" />
+                    </div>
+
+                    <p className="text-sm leading-7 text-cyan-50/90">{resolvedResult.verdict}</p>
+
+                    <div className="grid gap-3 sm:grid-cols-3 lg:grid-cols-1">
+                      <ScorePill
+                        label="Market"
+                        value={`${resolvedResult.market_size?.score ?? 0}/10`}
+                      />
+                      <ScorePill
+                        label="Competition"
+                        value={`${resolvedResult.competition_level?.score ?? 0}/10`}
+                      />
+                      <ScorePill
+                        label="Feasibility"
+                        value={`${resolvedResult.feasibility?.score ?? 0}/10`}
+                      />
+                    </div>
+                  </div>
+
+                  <div className="space-y-4">
+                    {scoreConfig.map(({ key, label }) => (
+                      <MetricBar
+                        key={key}
+                        label={label}
+                        score={resolvedResult[key]?.score ?? 0}
+                        rationale={resolvedResult[key]?.rationale ?? ""}
+                      />
+                    ))}
+                  </div>
+                </div>
+
+                <div className="mt-5 grid gap-4 lg:grid-cols-2">
+                  <div className="rounded-[28px] border border-emerald-300/15 bg-emerald-300/10 p-5">
+                    <p className="text-sm font-semibold text-emerald-100">Strengths</p>
+                    <ul className="mt-4 space-y-3 text-sm leading-7 text-emerald-50/90">
+                      {(resolvedResult.strengths ?? []).map((item) => (
+                        <li key={item} className="rounded-2xl bg-white/10 px-4 py-3">
+                          {item}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+
+                  <div className="rounded-[28px] border border-rose-300/15 bg-rose-300/10 p-5">
+                    <p className="text-sm font-semibold text-rose-100">Risks to watch</p>
+                    <ul className="mt-4 space-y-3 text-sm leading-7 text-rose-50/90">
+                      {(resolvedResult.weaknesses ?? []).map((item) => (
+                        <li key={item} className="rounded-2xl bg-white/10 px-4 py-3">
+                          {item}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                </div>
+              </div>
             </div>
           ) : null}
         </div>
-      ) : null}
+
+        <aside className="space-y-4">
+          <div className="rounded-[30px] border border-white/10 bg-white/[0.06] p-6 backdrop-blur">
+            <div className="flex items-center gap-3 text-cyan-200">
+              <Sparkles className="h-5 w-5" />
+              <p className="text-sm font-semibold uppercase tracking-[0.2em]">
+                Sample Output Preview
+              </p>
+            </div>
+
+            <div className="mt-5 space-y-4">
+              <div className="rounded-[24px] border border-white/10 bg-slate-950/70 p-5">
+                <div className="flex items-center justify-between gap-3">
+                  <div>
+                    <p className="text-sm text-slate-400">Score</p>
+                    <p className="mt-2 text-4xl font-semibold text-white">78/100</p>
+                  </div>
+                  <div className="rounded-full border border-cyan-300/15 bg-cyan-300/10 px-3 py-1 text-xs font-semibold text-cyan-100">
+                    Founder fit
+                  </div>
+                </div>
+              </div>
+
+              <div className="grid gap-3 sm:grid-cols-3 xl:grid-cols-1">
+                <ScorePill label="Market" value="8/10" />
+                <ScorePill label="Competition" value="6/10" />
+                <ScorePill label="Feasibility" value="7/10" />
+              </div>
+
+              <div className="rounded-[24px] border border-white/10 bg-slate-950/70 p-5">
+                <p className="text-sm font-semibold text-white">Insight</p>
+                <p className="mt-3 text-sm leading-7 text-slate-300">
+                  Strong problem clarity and repeat usage potential, but the product needs a more
+                  differentiated workflow to build durable retention.
+                </p>
+              </div>
+            </div>
+          </div>
+        </aside>
+      </div>
     </section>
   );
 }

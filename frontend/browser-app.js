@@ -1,9 +1,19 @@
 import React, { useState } from "https://esm.sh/react@18.3.1";
 import { createRoot } from "https://esm.sh/react-dom@18.3.1/client";
 import htm from "https://esm.sh/htm@3.1.1";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 const html = htm.bind(React.createElement);
 const API_BASE_URL = window.__API_BASE_URL__ || "http://127.0.0.1:8000";
+const SUPABASE_URL = window.__SUPABASE_URL__;
+const SUPABASE_ANON_KEY = window.__SUPABASE_ANON_KEY__;
+
+const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+  auth: {
+    persistSession: true,
+    autoRefreshToken: true,
+  },
+});
 
 const scoreConfig = [
   { key: "market_size", label: "Market Size" },
@@ -83,6 +93,8 @@ function SectionList({ title, items }) {
 }
 
 function App() {
+  const [session, setSession] = React.useState(null);
+  const [authLoading, setAuthLoading] = React.useState(true);
   const [idea, setIdea] = useState("");
   const [ideaResult, setIdeaResult] = useState(null);
   const [ideaLoading, setIdeaLoading] = useState(false);
@@ -97,23 +109,91 @@ function App() {
   const [prdLoading, setPrdLoading] = useState(false);
   const [prdError, setPrdError] = useState("");
 
+  React.useEffect(() => {
+    let active = true;
+
+    supabase.auth.getSession().then(({ data: { session: currentSession } }) => {
+      if (!active) {
+        return;
+      }
+
+      setSession(currentSession ?? null);
+      setAuthLoading(false);
+    });
+
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_event, nextSession) => {
+      setSession(nextSession ?? null);
+      setAuthLoading(false);
+    });
+
+    return () => {
+      active = false;
+      subscription.unsubscribe();
+    };
+  }, []);
+
+  const requireAccessToken = async () => {
+    const {
+      data: { session: currentSession },
+    } = await supabase.auth.getSession();
+
+    if (!currentSession?.access_token) {
+      throw new Error("Please login first");
+    }
+
+    setSession(currentSession);
+    return currentSession.access_token;
+  };
+
+  const apiRequest = async (endpoint, method = "POST", body) => {
+    const token = await requireAccessToken();
+    const response = await fetch(`${API_BASE_URL}${endpoint}`, {
+      method,
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      ...(body !== undefined ? { body: JSON.stringify(body) } : {}),
+    });
+
+    const data = await response.json().catch(() => ({}));
+
+    if (!response.ok) {
+      throw new Error(data.detail || "Request failed");
+    }
+
+    return data;
+  };
+
+  const handleLogin = async () => {
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: "google",
+      options: {
+        redirectTo: window.location.origin,
+      },
+    });
+
+    if (error) {
+      throw error;
+    }
+  };
+
+  const handleLogout = async () => {
+    const { error } = await supabase.auth.signOut();
+    if (error) {
+      throw error;
+    }
+  };
+
   const handleIdeaSubmit = async (event) => {
     event.preventDefault();
     setIdeaLoading(true);
     setIdeaError("");
 
     try {
-      const response = await fetch(`${API_BASE_URL}/validate-idea`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ idea }),
-      });
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.detail || "Unable to validate idea right now.");
-      }
-
+      const data = await apiRequest("/validate-idea", "POST", { idea });
       setIdeaResult(data);
     } catch (submitError) {
       setIdeaResult(null);
@@ -129,17 +209,9 @@ function App() {
     setCompetitorError("");
 
     try {
-      const response = await fetch(`${API_BASE_URL}/analyze-competitors`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ idea: competitorIdea }),
+      const data = await apiRequest("/analyze-competitors", "POST", {
+        idea: competitorIdea,
       });
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.detail || "Unable to analyze competitors right now.");
-      }
-
       setCompetitorResult(data);
     } catch (submitError) {
       setCompetitorResult(null);
@@ -155,20 +227,10 @@ function App() {
     setPrdError("");
 
     try {
-      const response = await fetch(`${API_BASE_URL}/generate-prd`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          product_name: productName,
-          product_description: productDescription,
-        }),
+      const data = await apiRequest("/generate-prd", "POST", {
+        product_name: productName,
+        product_description: productDescription,
       });
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.detail || "Unable to generate PRD right now.");
-      }
-
       setPrdResult(data);
     } catch (submitError) {
       setPrdResult(null);
@@ -199,8 +261,31 @@ function App() {
                 Validate startup ideas before you spend a quarter building them.
               </h1>
             </div>
-            <div className="rounded-2xl border border-cyan-400/30 bg-cyan-400/10 px-4 py-3 text-sm text-cyan-100">
-              FastAPI + LangChain + OpenAI
+            <div className="flex flex-wrap items-center justify-end gap-3">
+              <div className="rounded-2xl border border-cyan-400/30 bg-cyan-400/10 px-4 py-3 text-sm text-cyan-100">
+                ${authLoading
+                  ? "Checking session..."
+                  : session?.user?.email || "Sign in required"}
+              </div>
+              ${session
+                ? html`
+                    <button
+                      type="button"
+                      onClick=${handleLogout}
+                      className="rounded-2xl border border-white/20 bg-white/10 px-4 py-3 text-sm font-semibold text-white transition hover:bg-white/20"
+                    >
+                      Log out
+                    </button>
+                  `
+                : html`
+                    <button
+                      type="button"
+                      onClick=${handleLogin}
+                      className="rounded-2xl bg-white px-4 py-3 text-sm font-semibold text-slate-900 transition hover:bg-slate-100"
+                    >
+                      Sign in with Google
+                    </button>
+                  `}
             </div>
           </div>
 
@@ -216,6 +301,18 @@ function App() {
             </div>
           </div>
         </header>
+
+        ${!authLoading && !session
+          ? html`
+              <section className="mb-8 rounded-3xl border border-amber-200 bg-amber-50 p-5 text-amber-950 shadow-lg">
+                <h2 className="text-lg font-semibold">Login required</h2>
+                <p className="mt-2 text-sm leading-6">
+                  Supabase needs an active session so the frontend can attach your bearer token to every API request.
+                  Sign in first, then run the protected tools.
+                </p>
+              </section>
+            `
+          : null}
 
         <div className="space-y-8">
         <section className="mx-auto w-full max-w-5xl space-y-6 rounded-2xl border border-slate-200/80 bg-white/75 p-6 shadow-xl shadow-slate-200/40 backdrop-blur md:p-8">

@@ -1,5 +1,4 @@
-import React, { createContext, useContext, useMemo, useState } from 'react';
-
+import React, { createContext, useContext, useMemo, useState } from 'https://esm.sh/react@18.3.1?dev';
 const AuthContext = createContext({});
 
 const localUser = {
@@ -43,9 +42,9 @@ export const AuthProvider = ({ children }) => {
   );
 
   return (
-    <AuthContext.Provider value={value}>
-      {children}
-    </AuthContext.Provider>
+    React.createElement(AuthContext.Provider, { value: value,}
+      , children
+    )
   );
 };
 

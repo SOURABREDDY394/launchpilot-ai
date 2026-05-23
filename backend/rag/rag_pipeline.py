@@ -22,8 +22,6 @@ from pydantic import BaseModel
 from rag.vector_store import get_vector_store
 from utils.llm import get_chat_llm
 from utils.supabase_client import get_supabase_client
-from utils.auth import get_current_user
-from fastapi import Depends
 
 router = APIRouter(prefix="/rag", tags=["RAG Pipeline"])
 
@@ -85,7 +83,7 @@ async def upload_document(file: UploadFile = File(...)):
             os.remove(tmp_path)
 
 @router.post("/chat", response_model=ChatResponse)
-async def chat(request: ChatRequest, user = Depends(get_current_user)):
+async def chat(request: ChatRequest):
     session_id = request.session_id or str(uuid.uuid4())
     vector_store = get_vector_store()
     
@@ -138,7 +136,7 @@ Question: {request.question}
         try:
             supabase.table("rag_chat_history").insert({
                 "session_id": session_id,
-                "user_id": user.id,
+                "user_id": "local-workspace",
                 "question": request.question,
                 "answer": answer,
                 "sources": sources,

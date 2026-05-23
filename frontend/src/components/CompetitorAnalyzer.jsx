@@ -1,37 +1,15 @@
+import { ArrowRight, SearchCheck } from "lucide-react";
 import { useState } from "react";
 
 import { analyzeCompetitors } from "../api";
 
-const swotConfig = [
-  {
-    key: "strengths",
-    label: "Strengths",
-    classes: "border-emerald-200 bg-emerald-50 text-emerald-900",
-  },
-  {
-    key: "weaknesses",
-    label: "Weaknesses",
-    classes: "border-rose-200 bg-rose-50 text-rose-900",
-  },
-  {
-    key: "opportunities",
-    label: "Opportunities",
-    classes: "border-sky-200 bg-sky-50 text-sky-900",
-  },
-  {
-    key: "threats",
-    label: "Threats",
-    classes: "border-amber-200 bg-amber-50 text-amber-900",
-  },
-];
-
-function SWOTCard({ label, items, classes }) {
+function SWOTCard({ label, items }) {
   return (
-    <div className={`rounded-2xl border p-5 ${classes}`}>
-      <h4 className="text-lg font-semibold">{label}</h4>
-      <ul className="mt-3 space-y-2 text-sm">
+    <div className="rounded-[24px] border border-white/10 bg-slate-950/60 p-4">
+      <p className="text-sm font-semibold text-white">{label}</p>
+      <ul className="mt-3 space-y-2 text-sm leading-7 text-slate-300">
         {items.map((item) => (
-          <li key={item} className="rounded-xl bg-white/70 px-3 py-2">
+          <li key={item} className="rounded-2xl bg-white/5 px-3 py-2">
             {item}
           </li>
         ))}
@@ -63,140 +41,94 @@ export default function CompetitorAnalyzer() {
   };
 
   return (
-    <section className="mx-auto w-full max-w-6xl space-y-6 rounded-3xl border border-cyan-200/70 bg-white/80 p-6 shadow-2xl shadow-cyan-950/10 backdrop-blur md:p-8">
-      <div className="flex flex-col gap-2 md:flex-row md:items-end md:justify-between">
-        <div className="space-y-2">
-          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-cyan-700">
-            Market Intel
-          </p>
-          <h2 className="text-2xl font-bold text-slate-900">
+    <section className="rounded-[32px] border border-white/10 bg-white/[0.05] p-6 backdrop-blur md:p-8">
+      <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
+        <div className="space-y-3">
+          <p className="text-xs font-semibold uppercase tracking-[0.28em] text-cyan-200/75">
             Competitor Analyzer
+          </p>
+          <h2 className="text-2xl font-semibold tracking-tight text-white">
+            Benchmark the market after the idea looks promising
           </h2>
-          <p className="max-w-2xl text-sm text-slate-600">
-            Search the live market for real competitors, then synthesize a fast
-            competitive map and startup SWOT.
+          <p className="max-w-xl text-sm leading-7 text-slate-300">
+            Use this second. It helps you map nearby competitors, understand how crowded the space
+            is, and spot possible whitespace before you commit.
           </p>
         </div>
-        <div className="rounded-2xl border border-cyan-200 bg-cyan-50 px-4 py-3 text-sm text-cyan-900">
-          DuckDuckGo + LangChain
+
+        <div className="inline-flex items-center rounded-full border border-white/10 bg-white/5 px-4 py-2 text-sm text-slate-300">
+          Supporting workflow
         </div>
       </div>
 
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <textarea
-          value={idea}
-          onChange={(event) => setIdea(event.target.value)}
-          placeholder="Describe the startup idea you want to benchmark..."
-          className="min-h-32 w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 shadow-sm outline-none transition focus:border-cyan-500 focus:ring-2 focus:ring-cyan-100"
-          required
-        />
-        <button
-          type="submit"
-          disabled={loading || !idea.trim()}
-          className="inline-flex items-center justify-center rounded-2xl bg-cyan-600 px-5 py-3 text-sm font-semibold text-white transition hover:bg-cyan-500 disabled:cursor-not-allowed disabled:bg-slate-400"
-        >
-          {loading ? "Analyzing competitors..." : "Analyze Competitors"}
-        </button>
+      <form onSubmit={handleSubmit} className="mt-6 space-y-4">
+        <div className="rounded-[28px] border border-white/10 bg-slate-950/60 p-4">
+          <label className="text-sm font-semibold text-white">What should we benchmark?</label>
+          <p className="mt-1 text-sm leading-6 text-slate-400">
+            Hint: describe the product and user clearly so the market scan returns better
+            competitors and sharper positioning clues.
+          </p>
+          <textarea
+            value={idea}
+            onChange={(event) => setIdea(event.target.value)}
+            placeholder="AI assistant that helps SMB founders monitor churn risk from customer conversations"
+            className="mt-4 min-h-[150px] w-full resize-none rounded-[22px] border border-white/10 bg-[#07101f] px-4 py-3 text-sm text-white outline-none transition duration-200 placeholder:text-slate-500 focus:border-cyan-300/30 focus:ring-2 focus:ring-cyan-300/10"
+            required
+          />
+        </div>
+
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+          <button
+            type="submit"
+            disabled={loading || !idea.trim()}
+            className="inline-flex items-center justify-center gap-2 rounded-full border border-white/15 bg-white/10 px-5 py-3 text-sm font-semibold text-white transition duration-200 hover:border-white/25 hover:bg-white/15 disabled:cursor-not-allowed disabled:opacity-50"
+          >
+            {loading ? "Scanning competitors..." : "Find Competitors"}
+            <ArrowRight className="h-4 w-4" />
+          </button>
+        </div>
       </form>
 
       {error ? (
-        <div className="rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+        <div className="mt-5 rounded-[24px] border border-rose-400/20 bg-rose-400/10 px-4 py-3 text-sm text-rose-100">
           {error}
         </div>
       ) : null}
 
       {result ? (
-        <div className="space-y-8">
-          <div className="rounded-3xl bg-slate-900 p-6 text-white shadow-xl">
-            <p className="text-xs uppercase tracking-[0.2em] text-cyan-200">
-              Market Snapshot
-            </p>
-            <p className="mt-3 max-w-4xl text-sm leading-6 text-slate-200">
-              {result.market_summary}
-            </p>
+        <div className="mt-6 space-y-5">
+          <div className="rounded-[28px] border border-white/10 bg-slate-950/60 p-5">
+            <div className="flex items-center gap-3 text-cyan-200">
+              <SearchCheck className="h-5 w-5" />
+              <p className="text-sm font-semibold">Market snapshot</p>
+            </div>
+            <p className="mt-4 text-sm leading-7 text-slate-300">{result.market_summary}</p>
           </div>
 
-          <div className="space-y-4">
-            <div className="flex items-center justify-between">
-              <h3 className="text-xl font-semibold text-slate-900">
-                Top Competitors
-              </h3>
-              <p className="text-sm text-slate-500">
-                Real companies surfaced from web search
-              </p>
-            </div>
-
-            <div className="grid gap-4 xl:grid-cols-2">
-              {result.competitors.map((competitor, index) => (
-                <article
-                  key={competitor.name}
-                  className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm"
-                >
-                  <div className="flex items-start justify-between gap-4">
-                    <div>
-                      <p className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-400">
-                        Competitor {index + 1}
-                      </p>
-                      <h4 className="mt-1 text-lg font-semibold text-slate-900">
-                        {competitor.name}
-                      </h4>
-                    </div>
+          <div className="grid gap-4">
+            {result.competitors.slice(0, 3).map((competitor, index) => (
+              <article
+                key={competitor.name}
+                className="rounded-[28px] border border-white/10 bg-slate-950/60 p-5"
+              >
+                <div className="flex items-center justify-between gap-4">
+                  <div>
+                    <p className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">
+                      Competitor {index + 1}
+                    </p>
+                    <h3 className="mt-2 text-lg font-semibold text-white">{competitor.name}</h3>
                   </div>
-
-                  <p className="mt-3 text-sm leading-6 text-slate-600">
-                    {competitor.description}
-                  </p>
-
-                  <div className="mt-5 grid gap-4 md:grid-cols-2">
-                    <div className="rounded-xl border border-emerald-200 bg-emerald-50 p-4">
-                      <h5 className="text-sm font-semibold text-emerald-900">
-                        Strengths
-                      </h5>
-                      <ul className="mt-2 space-y-2 text-sm text-emerald-800">
-                        {competitor.strengths.map((item) => (
-                          <li key={item} className="rounded-lg bg-white/80 px-3 py-2">
-                            {item}
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-
-                    <div className="rounded-xl border border-rose-200 bg-rose-50 p-4">
-                      <h5 className="text-sm font-semibold text-rose-900">
-                        Weaknesses
-                      </h5>
-                      <ul className="mt-2 space-y-2 text-sm text-rose-800">
-                        {competitor.weaknesses.map((item) => (
-                          <li key={item} className="rounded-lg bg-white/80 px-3 py-2">
-                            {item}
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-                  </div>
-                </article>
-              ))}
-            </div>
+                </div>
+                <p className="mt-3 text-sm leading-7 text-slate-300">{competitor.description}</p>
+              </article>
+            ))}
           </div>
 
-          <div className="space-y-4">
-            <div>
-              <h3 className="text-xl font-semibold text-slate-900">SWOT Table</h3>
-              <p className="mt-1 text-sm text-slate-500">
-                Strategic summary for the idea based on the competitive field
-              </p>
-            </div>
-
-            <div className="grid gap-4 md:grid-cols-2">
-              {swotConfig.map(({ key, label, classes }) => (
-                <SWOTCard
-                  key={key}
-                  label={label}
-                  items={result.swot[key] ?? []}
-                  classes={classes}
-                />
-              ))}
-            </div>
+          <div className="grid gap-4 lg:grid-cols-2">
+            <SWOTCard label="Strengths" items={result.swot?.strengths ?? []} />
+            <SWOTCard label="Weaknesses" items={result.swot?.weaknesses ?? []} />
+            <SWOTCard label="Opportunities" items={result.swot?.opportunities ?? []} />
+            <SWOTCard label="Threats" items={result.swot?.threats ?? []} />
           </div>
         </div>
       ) : null}

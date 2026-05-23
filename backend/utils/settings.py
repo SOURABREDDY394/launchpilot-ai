@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from pathlib import Path
+from typing import List
 
 from pydantic import Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
@@ -30,6 +31,18 @@ class Settings(BaseSettings):
     cloudinary_api_key: str = Field(default="", alias="CLOUDINARY_API_KEY")
     cloudinary_api_secret: str = Field(default="", alias="CLOUDINARY_API_SECRET")
     firecrawl_api_key: str = Field(default="", alias="FIRECRAWL_API_KEY")
+    cors_allowed_origins: str = Field(
+        default="http://localhost:5173,http://127.0.0.1:5173",
+        alias="CORS_ALLOWED_ORIGINS",
+    )
+
+    @property
+    def cors_allowed_origins_list(self) -> List[str]:
+        return [
+            origin.strip()
+            for origin in self.cors_allowed_origins.split(",")
+            if origin.strip()
+        ]
 
     model_config = SettingsConfigDict(
         env_file=BASE_DIR / ".env",

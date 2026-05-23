@@ -1,0 +1,11 @@
+
+> launchpilot-ai-frontend@0.1.0 dev
+> vite --host 127.0.0.1 --port 5173
+
+
+  [32m[1mVITE[22m v5.4.21[39m  [2mready in [0m[1m1650[22m[2m[0m ms[22m
+
+  [32m➜[39m  [1mLocal[22m:   [36mhttp://127.0.0.1:[1m5173[22m/[39m
+[2m2:57:31 pm[22m [36m[1m[vite][22m[39m [32m✨ new dependencies optimized: [33mrecharts[32m[39m
+[2m2:57:31 pm[22m [36m[1m[vite][22m[39m [32m✨ optimized dependencies changed. reloading[39m
+[2m3:01:07 pm[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/index.css?direct, /src/index.css, /src/pages/Legal.jsx, /src/pages/ColdEmail.jsx, /src/pages/PitchDeck.jsx, /src/pages/Hiring.jsx, /src/pages/RAGChat.jsx, /src/components/CompetitorAnalyzer.jsx, /src/pages/Finance.jsx, /src/components/PRDGenerator.jsx, /src/components/IdeaValidator.jsx[22m

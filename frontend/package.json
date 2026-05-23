@@ -7,8 +7,9 @@
     "start": "node server.js",
     "dev": "vite",
     "build": "npm run build:css && npm run build:js",
+    "build:deploy": "node scripts/build-static.mjs",
     "build:css": "tailwindcss -i ./src/index.css -o ./assets/app.css --minify",
-    "build:js": ".\\node_modules\\@esbuild\\win32-x64\\esbuild.exe \"C:\\Users\\soura\\OneDrive\\Documents\\New project\\frontend\\src\\main.jsx\" --bundle --outfile=\"C:\\Users\\soura\\OneDrive\\Documents\\New project\\frontend\\assets\\app.js\" --format=esm --loader:.js=jsx --loader:.jsx=jsx",
+    "build:js": ".\\node_modules\\@esbuild\\win32-x64\\esbuild.exe ./src/main.jsx --bundle --outfile=./assets/app.js --format=esm --loader:.js=jsx --loader:.jsx=jsx",
     "preview": "vite preview"
   },
   "dependencies": {
@@ -16,6 +17,7 @@
     "axios": "^1.15.2",
     "jspdf": "^2.5.2",
     "lucide-react": "^1.14.0",
+    "ogl": "^1.0.11",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "react-router-dom": "^7.14.2",
